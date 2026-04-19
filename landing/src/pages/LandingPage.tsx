@@ -63,7 +63,7 @@ export function LandingPage() {
   }, []);
 
   // Hardcoded launch date to start the real countdown
-  const targetDate = useMemo(() => new Date('2026-05-15T12:00:00Z').getTime(), []);
+  const targetDate = useMemo(() => new Date('2026-05-03T12:00:00Z').getTime(), []);
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [inputEmail, setInputEmail] = useState("");
 
@@ -278,19 +278,24 @@ export function LandingPage() {
                         <span className="font-semibold text-[13px] tracking-wide">До открытия демо</span>
                       </div>
                       <div className="flex gap-2 text-center items-end justify-center w-full mt-1">
-                        <div className="flex flex-col items-center w-14">
+                        <div className="flex flex-col items-center w-12">
                           <span className="text-4xl font-bold text-primary tracking-tight leading-none">{timeLeft.days}</span>
-                          <span className="text-[9px] text-gray-500 uppercase tracking-widest mt-3">Дней</span>
+                          <span className="text-[9px] text-gray-500 uppercase tracking-widest mt-3">Дни</span>
                         </div>
                         <span className="text-2xl font-bold text-gray-600 mb-5 relative -top-[1px]">:</span>
-                        <div className="flex flex-col items-center w-14">
+                        <div className="flex flex-col items-center w-12">
                           <span className="text-4xl font-bold text-primary tracking-tight leading-none">{timeLeft.hours.toString().padStart(2, '0')}</span>
-                          <span className="text-[9px] text-gray-500 uppercase tracking-widest mt-3">Часов</span>
+                          <span className="text-[9px] text-gray-500 uppercase tracking-widest mt-3">Часы</span>
                         </div>
                         <span className="text-2xl font-bold text-gray-600 mb-5 relative -top-[1px]">:</span>
-                        <div className="flex flex-col items-center w-14">
+                        <div className="flex flex-col items-center w-12">
                           <span className="text-4xl font-bold text-primary tracking-tight leading-none">{timeLeft.minutes.toString().padStart(2, '0')}</span>
-                          <span className="text-[9px] text-gray-500 uppercase tracking-widest mt-3">Минут</span>
+                          <span className="text-[9px] text-gray-500 uppercase tracking-widest mt-3">Мин</span>
+                        </div>
+                        <span className="text-2xl font-bold text-gray-600 mb-5 relative -top-[1px]">:</span>
+                        <div className="flex flex-col items-center w-12">
+                          <span className="text-4xl font-bold text-primary tracking-tight leading-none">{timeLeft.seconds.toString().padStart(2, '0')}</span>
+                          <span className="text-[9px] text-gray-500 uppercase tracking-widest mt-3">Сек</span>
                         </div>
                       </div>
                     </div>

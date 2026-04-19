@@ -33,7 +33,7 @@ export function AuthPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isWaitlisted] = useState(false);
   const [waitlistData] = useState({ total: 1284, position: 31 });
-  const [timeLeft, setTimeLeft] = useState({ days: 14, hours: 8, minutes: 44 });
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   const navigate = useNavigate();
 
@@ -44,30 +44,27 @@ export function AuthPage() {
   }, [navigate]);
 
   useEffect(() => {
-    // Waitlist Timer: activate 14 days countdown
-    // Best option is to use a fixed date 14 days from "launch" or current day.
-    const launchDate = new Date();
-    launchDate.setDate(launchDate.getDate() + 14);
-    const targetTime = launchDate.getTime();
+    const targetTime = new Date('2026-05-03T12:00:00Z').getTime();
 
     const updateTimer = () => {
       const now = new Date().getTime();
       const distance = targetTime - now;
 
       if (distance <= 0) {
-        setTimeLeft({ days: 0, hours: 0, minutes: 0 });
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
         return;
       }
 
       setTimeLeft({
         days: Math.floor(distance / (1000 * 60 * 60 * 24)),
         hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-        minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))
+        minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.floor((distance % (1000 * 60)) / 1000)
       });
     };
 
-    updateTimer(); // Initial call
-    const interval = setInterval(updateTimer, 60000); // Update every minute
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
 
     return () => clearInterval(interval);
   }, []);
@@ -267,19 +264,24 @@ export function AuthPage() {
                   </div>
                   
                   <div className="flex gap-1.5 text-center items-end justify-center w-full">
-                    <div className="flex flex-col items-center w-10">
+                    <div className="flex flex-col items-center w-8">
                       <span className="text-[26px] font-bold text-primary tracking-tight leading-none mb-1.5">{timeLeft.days.toString().padStart(2, '0')}</span>
-                      <span className="text-[8px] text-gray-500 uppercase tracking-[0.1em]">Дней</span>
+                      <span className="text-[8px] text-gray-500 uppercase tracking-[0.1em]">Дни</span>
                     </div>
                     <span className="text-xl font-bold text-gray-600 mb-[18px] opacity-70">:</span>
-                    <div className="flex flex-col items-center w-10">
+                    <div className="flex flex-col items-center w-8">
                       <span className="text-[26px] font-bold text-primary tracking-tight leading-none mb-1.5">{timeLeft.hours.toString().padStart(2, '0')}</span>
-                      <span className="text-[8px] text-gray-500 uppercase tracking-[0.1em]">Часов</span>
+                      <span className="text-[8px] text-gray-500 uppercase tracking-[0.1em]">Часы</span>
                     </div>
                     <span className="text-xl font-bold text-gray-600 mb-[18px] opacity-70">:</span>
-                    <div className="flex flex-col items-center w-10">
+                    <div className="flex flex-col items-center w-8">
                       <span className="text-[26px] font-bold text-primary tracking-tight leading-none mb-1.5">{timeLeft.minutes.toString().padStart(2, '0')}</span>
-                      <span className="text-[8px] text-gray-500 uppercase tracking-[0.1em]">Минут</span>
+                      <span className="text-[8px] text-gray-500 uppercase tracking-[0.1em]">Мин</span>
+                    </div>
+                    <span className="text-xl font-bold text-gray-600 mb-[18px] opacity-70">:</span>
+                    <div className="flex flex-col items-center w-8">
+                      <span className="text-[26px] font-bold text-primary tracking-tight leading-none mb-1.5">{timeLeft.seconds.toString().padStart(2, '0')}</span>
+                      <span className="text-[8px] text-gray-500 uppercase tracking-[0.1em]">Сек</span>
                     </div>
                   </div>
                 </div>
