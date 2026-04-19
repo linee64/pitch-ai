@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Play, Users, Clock, ArrowRight, CheckCircle2, Star, Sparkles, MonitorPlay, GraduationCap, Briefcase, Users2, Zap } from 'lucide-react';
+import { Play, Users, Clock, ArrowRight, CheckCircle2, Star, Sparkles, MonitorPlay, GraduationCap, Briefcase, Users2, Zap, Check, Copy } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 import { DarkVeil } from '../components/DarkVeil';
 import { DecryptedText } from '../components/DecryptedText';
 import { CardStack } from "../components/ui/card-stack";
@@ -10,7 +11,6 @@ import { Link } from 'react-router-dom';
 gsap.registerPlugin(ScrollTrigger);
 
 export function LandingPage() {
-  const [timeLeft, setTimeLeft] = useState({ days: 14, hours: 8, minutes: 45, seconds: 0 });
   const [typewriterWordIndex, setTypewriterWordIndex] = useState(0);
   const [typedText, setTypedText] = useState("");
   const scenarioTitleRef = useRef<HTMLHeadingElement | null>(null);
@@ -19,19 +19,91 @@ export function LandingPage() {
     []
   );
 
-  // Simulate countdown timer
+  // Initialize userData from localStorage synchronously to avoid flash
+  const [userData, setUserData] = useState<{ email: string; position: number; total: number } | null>(() => {
+    const email = localStorage.getItem('pitchai_email');
+    if (email) {
+      return {
+        email,
+        position: parseInt(localStorage.getItem('pitchai_position') || '0', 10) || 0,
+        total: parseInt(localStorage.getItem('pitchai_total') || '0', 10) || 0,
+      };
+    }
+    return null;
+  });
+
+  // Fetch real data on mount
   useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
-        if (prev.minutes > 0) return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
-        if (prev.hours > 0) return { ...prev, hours: prev.hours - 1, minutes: 59, seconds: 59 };
-        if (prev.days > 0) return { ...prev, days: prev.days - 1, hours: 23, minutes: 59, seconds: 59 };
-        return prev;
-      });
-    }, 1000);
-    return () => clearInterval(timer);
+    const fetchRealData = async () => {
+      try {
+        const { count } = await supabase.from('waitlist').select('*', { count: 'exact', head: true });
+        
+        let currentUserEmail = localStorage.getItem('pitchai_email');
+        if (!currentUserEmail) {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.user?.email) {
+                currentUserEmail = session.user.email;
+                localStorage.setItem('pitchai_email', currentUserEmail);
+            }
+        }
+
+        if (currentUserEmail) {
+            const { data } = await supabase.from('waitlist').select('position').eq('email', currentUserEmail).single();
+            if (data && count !== null) {
+                localStorage.setItem('pitchai_position', data.position.toString());
+                localStorage.setItem('pitchai_total', count.toString());
+                setUserData({ email: currentUserEmail, position: data.position, total: count });
+            }
+        }
+      } catch (err) {
+        console.error("Error fetching real waitlist data", err);
+      }
+    };
+    fetchRealData();
   }, []);
+
+  // Hardcoded launch date to start the real countdown
+  const targetDate = useMemo(() => new Date('2026-05-15T12:00:00Z').getTime(), []);
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
+  useEffect(() => {
+    const updateTimer = () => {
+      const distance = targetDate - Date.now();
+      if (distance <= 0) {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        return;
+      }
+      setTimeLeft({
+        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.floor((distance % (1000 * 60)) / 1000)
+      });
+    };
+    updateTimer();
+    const timer = setInterval(updateTimer, 1000);
+    return () => clearInterval(timer);
+  }, [targetDate]);
+
+  const [copied, setCopied] = useState(false);
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.origin);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleJoinWaitlist = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputEmail) return;
+
+    try {
+        // Redirect to auth page with pre-filled email via URL query, 
+        // since full Supabase registration (Auth) requires a password.
+        window.location.href = `/auth?email=${encodeURIComponent(inputEmail)}`;
+    } catch (err) {
+        console.error(err);
+    }
+  };
 
   useEffect(() => {
     const fullWord = typewriterWords[typewriterWordIndex];
@@ -140,9 +212,15 @@ export function LandingPage() {
             </div>
             <span className="font-bold text-xl tracking-tight text-white">PitchAI</span>
           </div>
-          <Link to="/auth" className="text-sm font-medium text-primary border border-primary/30 px-5 py-2.5 rounded-xl hover:bg-primary/10 hover:border-primary/60 transition-all duration-300 shadow-[0_0_15px_rgba(251,191,36,0.05)] hover:shadow-[0_0_20px_rgba(251,191,36,0.15)]">
-            Присоединиться к Waitlist
-          </Link>
+          {userData ? (
+            <div className="text-sm font-medium text-primary border border-primary/30 px-5 py-2.5 rounded-xl flex items-center gap-2 cursor-default bg-primary/5">
+              You're in <CheckCircle2 className="w-4 h-4" />
+            </div>
+          ) : (
+            <Link to="/auth" className="text-sm font-medium text-primary border border-primary/30 px-5 py-2.5 rounded-xl hover:bg-primary/10 hover:border-primary/60 transition-all duration-300 shadow-[0_0_15px_rgba(251,191,36,0.05)] hover:shadow-[0_0_20px_rgba(251,191,36,0.15)]">
+              Join Waitlist
+            </Link>
+          )}
         </div>
       </nav>
 
@@ -165,51 +243,104 @@ export function LandingPage() {
                 Загрузи презентацию и фото жюри. ИИ оживит его в <strong className="text-white font-semibold">говорящий аватар</strong>. Выступай вживую — аватар смотрит слайды, слушает тебя и задаёт острые вопросы.
               </p>
 
-              {/* Stats & Timer */}
-              <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 max-w-5xl mx-auto border-t border-border/50 pt-12">
-                <div className="flex flex-col items-center justify-center space-y-3">
-                  <div className="flex items-center gap-2 text-gray-400 mb-2 text-lg">
-                    <Users className="w-6 h-6" />
-                    <span className="font-medium tracking-wide">Уже ждут демо</span>
-                  </div>
-                  <span className="text-5xl md:text-6xl font-bold text-white tracking-tight">1,284</span>
-                  <span className="text-base text-gray-500">пользователя зарегистрировано</span>
-                </div>
+              {/* Stats & Timer OR Registration Form */}
+              {userData ? (
+                <div className="mt-16 bg-black/40 border border-white/5 py-8 max-w-[900px] mx-auto shadow-2xl relative overflow-hidden backdrop-blur-xl rounded-2xl animate-in fade-in duration-[400ms] fill-mode-forwards">
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-0 relative z-10 px-4">
+                    
+                    {/* Užhe ždut demo */}
+                    <div className="flex flex-col items-center justify-center space-y-1 md:border-r border-white/5 py-2">
+                      <div className="flex items-center gap-2 text-gray-400 mb-3">
+                        <Users className="w-4 h-4" />
+                        <span className="font-semibold text-[13px] tracking-wide">Уже ждут демо</span>
+                      </div>
+                      <span className="text-[3.5rem] leading-none font-bold text-white tracking-tight">{userData.total.toLocaleString()}</span>
+                      <span className="text-[11px] text-gray-500 uppercase tracking-widest text-center mt-3 pt-2">пользователя <br/>зарегистрировано</span>
+                    </div>
 
-                <div className="flex flex-col items-center justify-center space-y-3 relative">
-                  <div className="absolute left-0 top-0 bottom-0 w-px bg-border/50 hidden md:block"></div>
-                  <div className="flex items-center gap-2 text-gray-400 mb-2 text-lg">
-                    <Sparkles className="w-6 h-6 text-primary/80" />
-                    <span className="font-medium tracking-wide">Ваше место в списке</span>
+                    {/* Vashe mesto v spiske */}
+                    <div className="flex flex-col items-center justify-center space-y-1 py-2 relative">
+                      <div className="flex items-center gap-2 text-gray-400 mb-3">
+                        <Sparkles className="w-4 h-4 text-primary" />
+                        <span className="font-semibold text-[13px] tracking-wide">Ваше место в списке</span>
+                      </div>
+                      <span className="text-[3.5rem] leading-none font-bold text-primary tracking-tight">#{userData.position}</span>
+                      <span className="text-[11px] text-gray-500 uppercase tracking-widest text-center mt-3 pt-2">среди всех <br/>ожидающих</span>
+                    </div>
+                    
+                    {/* Do otkrîtiya demo */}
+                    <div className="flex flex-col items-center justify-center space-y-1 md:border-l border-white/5 py-2">
+                      <div className="flex items-center gap-2 text-gray-400 mb-3">
+                        <Clock className="w-4 h-4" />
+                        <span className="font-semibold text-[13px] tracking-wide">До открытия демо</span>
+                      </div>
+                      <div className="flex gap-2 text-center items-end justify-center w-full mt-1">
+                        <div className="flex flex-col items-center w-14">
+                          <span className="text-4xl font-bold text-primary tracking-tight leading-none">{timeLeft.days}</span>
+                          <span className="text-[9px] text-gray-500 uppercase tracking-widest mt-3">Дней</span>
+                        </div>
+                        <span className="text-2xl font-bold text-gray-600 mb-5 relative -top-[1px]">:</span>
+                        <div className="flex flex-col items-center w-14">
+                          <span className="text-4xl font-bold text-primary tracking-tight leading-none">{timeLeft.hours.toString().padStart(2, '0')}</span>
+                          <span className="text-[9px] text-gray-500 uppercase tracking-widest mt-3">Часов</span>
+                        </div>
+                        <span className="text-2xl font-bold text-gray-600 mb-5 relative -top-[1px]">:</span>
+                        <div className="flex flex-col items-center w-14">
+                          <span className="text-4xl font-bold text-primary tracking-tight leading-none">{timeLeft.minutes.toString().padStart(2, '0')}</span>
+                          <span className="text-[9px] text-gray-500 uppercase tracking-widest mt-3">Минут</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <span className="text-5xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-yellow-200 tracking-tight">#31</span>
-                  <span className="text-base text-gray-500">среди всех ожидающих</span>
+
+                  {/* Share nudge row */}
+                  <div className="mt-8 pt-6 border-t border-white/5 flex flex-col items-center w-full relative z-10 px-6">
+                    <div className="text-gray-400 text-sm font-medium mb-4 flex items-center gap-2">
+                       Поделитесь ссылкой, чтобы подняться в списке
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto justify-center">
+                      <a 
+                        href={'https://twitter.com/intent/tweet?text=' + encodeURIComponent('Я в списке ожидания PitchAI — тренажера презентаций с ИИ! Присоединяйтесь: ' + window.location.origin)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-2 px-5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/20 text-gray-300 hover:text-white transition-all text-[13px] font-medium w-full sm:w-auto"
+                      >
+                        <svg className="w-4 h-4 fill-current opacity-70" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                        Поделиться в X
+                      </a>
+                      <button 
+                        onClick={handleCopyLink}
+                        className="flex items-center justify-center gap-2 px-5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/20 text-gray-300 hover:text-white transition-all text-[13px] font-medium w-full sm:w-auto min-w-[170px]"
+                      >
+                        {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4 opacity-70" />}
+                        {copied ? <span className="text-green-400">Скопировано!</span> : 'Скопировать ссылку'}
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                
-                <div className="flex flex-col items-center justify-center space-y-3 relative">
-                  <div className="absolute left-0 top-0 bottom-0 w-px bg-border/50 hidden md:block"></div>
-                  <div className="flex items-center gap-2 text-gray-400 mb-2 text-lg">
-                    <Clock className="w-6 h-6" />
-                    <span className="font-medium tracking-wide">До открытия демо</span>
-                  </div>
-                  <div className="flex gap-4 text-center items-center">
-                    <div className="flex flex-col">
-                      <span className="text-4xl md:text-5xl font-bold text-primary w-16 tracking-tight">{timeLeft.days}</span>
-                      <span className="text-[11px] text-gray-500 uppercase tracking-widest mt-1">Дней</span>
-                    </div>
-                    <span className="text-3xl md:text-4xl font-bold text-gray-600 mb-4">:</span>
-                    <div className="flex flex-col">
-                      <span className="text-4xl md:text-5xl font-bold text-primary w-16 tracking-tight">{timeLeft.hours.toString().padStart(2, '0')}</span>
-                      <span className="text-[11px] text-gray-500 uppercase tracking-widest mt-1">Часов</span>
-                    </div>
-                    <span className="text-3xl md:text-4xl font-bold text-gray-600 mb-4">:</span>
-                    <div className="flex flex-col">
-                      <span className="text-4xl md:text-5xl font-bold text-primary w-16 tracking-tight">{timeLeft.minutes.toString().padStart(2, '0')}</span>
-                      <span className="text-[11px] text-gray-500 uppercase tracking-widest mt-1">Минут</span>
-                    </div>
-                  </div>
+              ) : (
+                <div className="mt-16 max-w-[420px] mx-auto animate-in fade-in duration-500 border border-white/5 bg-black/20 p-2 pl-6 rounded-full shadow-2xl backdrop-blur-md hover:border-white/10 transition-colors">
+                  <form onSubmit={handleJoinWaitlist} className="flex items-center gap-3">
+                    <input 
+                      type="email" 
+                      required
+                      value={inputEmail}
+                      onChange={(e) => setInputEmail(e.target.value)}
+                      placeholder="Ваш Email"
+                      className="flex-1 bg-transparent border-none text-white placeholder-gray-500 focus:outline-none focus:ring-0 outline-none text-sm md:text-base"
+                    />
+                    <button 
+                      type="submit"
+                      className="bg-primary hover:bg-primary/90 text-black font-bold py-3.5 px-6 rounded-full shadow-[0_0_15px_rgba(251,191,36,0.2)] hover:shadow-[0_0_20px_rgba(251,191,36,0.35)] transition-all flex justify-center items-center gap-2 whitespace-nowrap"
+                    >
+                      Присоединиться 
+                      <ArrowRight className="w-4 h-4 ml-1" />
+                    </button>
+                  </form>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </section>
