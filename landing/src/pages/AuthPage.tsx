@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Play, Mail, Lock, ArrowRight, Users, Sparkles, Clock, Loader2, ArrowLeft } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { DarkVeil } from '../components/DarkVeil';
 
 const slides = [
   {
@@ -19,7 +20,7 @@ const slides = [
 ];
 
 export function AuthPage() {
-  const [isLogin, setIsLogin] = useState(false); // Default to register for waitlist
+  const [isLogin] = useState(false); // Default to register for waitlist
   const [currentSlide, setCurrentSlide] = useState(0);
 
   // Authentication & Waitlist State
@@ -30,8 +31,8 @@ export function AuthPage() {
   const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isWaitlisted, setIsWaitlisted] = useState(false);
-  const [waitlistData, setWaitlistData] = useState({ total: 1284, position: 31 });
+  const [isWaitlisted] = useState(false);
+  const [waitlistData] = useState({ total: 1284, position: 31 });
   const [timeLeft, setTimeLeft] = useState({ days: 14, hours: 8, minutes: 44 });
 
   const navigate = useNavigate();
@@ -86,14 +87,14 @@ export function AuthPage() {
 
     try {
       // Attempt Sign Up first via Supabase
-      let { data: authData, error: authError } = await supabase.auth.signUp({
+      let { error: authError } = await supabase.auth.signUp({
         email,
         password,
       });
 
       // If user already exists, try Sign In
       if (authError && authError.message.toLowerCase().includes('already registered')) {
-        const { data: signInData, error: loginError } = await supabase.auth.signInWithPassword({ 
+        const { error: loginError } = await supabase.auth.signInWithPassword({ 
           email, 
           password 
         });

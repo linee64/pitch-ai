@@ -65,6 +65,7 @@ export function LandingPage() {
   // Hardcoded launch date to start the real countdown
   const targetDate = useMemo(() => new Date('2026-05-15T12:00:00Z').getTime(), []);
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [inputEmail, setInputEmail] = useState("");
 
   useEffect(() => {
     const updateTimer = () => {
