@@ -161,7 +161,7 @@ export function AuthPage() {
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent pointer-events-none z-20"></div>
 
         {/* === Left Side: Decor / PitchAI Branding === */}
-        <div className="w-full md:w-[45%] relative bg-gradient-to-br from-primary/10 via-transparent to-transparent flex flex-col p-6 sm:p-8 border-b md:border-b-0 md:border-r border-white/10 overflow-hidden min-h-[280px] md:min-h-auto flex-shrink-0">
+        <div className="w-full md:w-[45%] relative bg-gradient-to-br from-primary/10 via-transparent to-transparent flex flex-col p-5 sm:p-8 border-b md:border-b-0 md:border-r border-white/10 overflow-hidden min-h-[230px] sm:min-h-[280px] md:min-h-auto flex-shrink-0">
 
           {/* Abstract background shapes */}
           <div className="absolute top-[-20%] left-[-20%] w-60 h-60 bg-primary/20 blur-[80px] rounded-full pointer-events-none"></div>
@@ -187,7 +187,7 @@ export function AuthPage() {
               </div>
             </Link>
 
-            <div className="mt-auto bg-black/20 backdrop-blur-xl p-5 sm:p-6 rounded-2xl border border-white/10 shadow-xl relative overflow-hidden group hover:border-primary/30 transition-colors flex flex-col min-h-[220px]">
+            <div className="mt-auto bg-black/20 backdrop-blur-xl p-5 sm:p-6 rounded-2xl border border-white/10 shadow-xl relative overflow-hidden group hover:border-primary/30 transition-colors flex flex-col min-h-[170px] sm:min-h-[220px]">
               <div className="absolute -top-6 -right-6 w-20 h-20 bg-primary/20 blur-2xl rounded-full group-hover:bg-primary/30 transition-colors"></div>
 
               {/* Animated text section */}
@@ -240,7 +240,7 @@ export function AuthPage() {
                   <Sparkles className="w-[18px] h-[18px] text-primary" />
                   <span className="text-[15px] font-semibold tracking-wide">Ваше место в списке</span>
                 </div>
-                <div className="text-[6rem] leading-[0.85] font-black text-primary mb-3 tracking-tighter relative z-10 drop-shadow-[0_2px_15px_rgba(251,191,36,0.2)]">#{waitlistData.position}</div>
+                <div className="text-7xl md:text-[6rem] leading-[0.85] font-black text-primary mb-3 tracking-tighter relative z-10 drop-shadow-[0_2px_15px_rgba(251,191,36,0.2)]">#{waitlistData.position}</div>
                 <span className="text-[13px] text-gray-500 relative z-10 font-medium pt-2">среди всех ожидающих</span>
               </div>
 
@@ -252,7 +252,7 @@ export function AuthPage() {
                     <Users className="w-4 h-4" />
                     <span className="text-[13px] font-semibold tracking-wide">Уже ждут демо</span>
                   </div>
-                  <div className="text-[28px] font-bold text-white tracking-tight leading-none mb-3">{waitlistData.total.toLocaleString('ru-RU')}</div>
+                  <div className="text-2xl md:text-[28px] font-bold text-white tracking-tight leading-none mb-3">{waitlistData.total.toLocaleString('ru-RU')}</div>
                   <span className="text-[9px] text-gray-500 uppercase tracking-widest leading-[1.5]">ПОЛЬЗОВАТЕЛЯ<br/>ЗАРЕГИСТРИРОВАНО</span>
                 </div>
 
@@ -265,22 +265,22 @@ export function AuthPage() {
                   
                   <div className="flex gap-1.5 text-center items-end justify-center w-full">
                     <div className="flex flex-col items-center w-8">
-                      <span className="text-[26px] font-bold text-primary tracking-tight leading-none mb-1.5">{timeLeft.days.toString().padStart(2, '0')}</span>
+                      <span className="text-[22px] md:text-[26px] font-bold text-primary tracking-tight leading-none mb-1.5">{timeLeft.days.toString().padStart(2, '0')}</span>
                       <span className="text-[8px] text-gray-500 uppercase tracking-[0.1em]">Дни</span>
                     </div>
                     <span className="text-xl font-bold text-gray-600 mb-[18px] opacity-70">:</span>
                     <div className="flex flex-col items-center w-8">
-                      <span className="text-[26px] font-bold text-primary tracking-tight leading-none mb-1.5">{timeLeft.hours.toString().padStart(2, '0')}</span>
+                      <span className="text-[22px] md:text-[26px] font-bold text-primary tracking-tight leading-none mb-1.5">{timeLeft.hours.toString().padStart(2, '0')}</span>
                       <span className="text-[8px] text-gray-500 uppercase tracking-[0.1em]">Часы</span>
                     </div>
                     <span className="text-xl font-bold text-gray-600 mb-[18px] opacity-70">:</span>
                     <div className="flex flex-col items-center w-8">
-                      <span className="text-[26px] font-bold text-primary tracking-tight leading-none mb-1.5">{timeLeft.minutes.toString().padStart(2, '0')}</span>
+                      <span className="text-[22px] md:text-[26px] font-bold text-primary tracking-tight leading-none mb-1.5">{timeLeft.minutes.toString().padStart(2, '0')}</span>
                       <span className="text-[8px] text-gray-500 uppercase tracking-[0.1em]">Мин</span>
                     </div>
                     <span className="text-xl font-bold text-gray-600 mb-[18px] opacity-70">:</span>
                     <div className="flex flex-col items-center w-8">
-                      <span className="text-[26px] font-bold text-primary tracking-tight leading-none mb-1.5">{timeLeft.seconds.toString().padStart(2, '0')}</span>
+                      <span className="text-[22px] md:text-[26px] font-bold text-primary tracking-tight leading-none mb-1.5">{timeLeft.seconds.toString().padStart(2, '0')}</span>
                       <span className="text-[8px] text-gray-500 uppercase tracking-[0.1em]">Сек</span>
                     </div>
                   </div>

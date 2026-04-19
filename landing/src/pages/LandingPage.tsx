@@ -192,7 +192,7 @@ export function LandingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-darker text-gray-100 font-sans selection:bg-primary selection:text-black relative">
+    <div className="min-h-screen bg-darker text-gray-100 font-sans selection:bg-primary selection:text-black relative overflow-x-hidden">
       {/* Background DarkVeil Component */}
       <div className="fixed inset-[-1%] w-[102%] h-[102%] z-0 pointer-events-none" style={{ transform: 'translateZ(0)', willChange: 'transform' }}>
         <DarkVeil
@@ -232,7 +232,7 @@ export function LandingPage() {
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="text-center max-w-4xl mx-auto">
-              <h1 className="text-5xl md:text-7xl font-extrabold text-white tracking-tight mb-8 leading-tight min-h-[190px] md:min-h-[210px]">
+              <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold text-white tracking-tight mb-8 leading-tight min-h-[140px] sm:min-h-[190px] md:min-h-[210px]">
                 Тренажёр публичных <br className="hidden md:block" />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-yellow-200 inline-flex items-end gap-1">
                   {typedText}
@@ -249,7 +249,7 @@ export function LandingPage() {
                 <div className="mt-16 bg-black/40 border border-white/5 py-8 max-w-[900px] mx-auto shadow-2xl relative overflow-hidden backdrop-blur-xl rounded-2xl animate-in fade-in duration-[400ms] fill-mode-forwards">
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-0 relative z-10 px-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-0 relative z-10 px-2 sm:px-4">
                     
                     {/* Užhe ždut demo */}
                     <div className="flex flex-col items-center justify-center space-y-1 md:border-r border-white/5 py-2">
@@ -257,7 +257,7 @@ export function LandingPage() {
                         <Users className="w-4 h-4" />
                         <span className="font-semibold text-[13px] tracking-wide">Уже ждут демо</span>
                       </div>
-                      <span className="text-[3.5rem] leading-none font-bold text-white tracking-tight">{userData.total.toLocaleString()}</span>
+                      <span className="text-5xl md:text-[3.5rem] leading-none font-bold text-white tracking-tight">{userData.total.toLocaleString()}</span>
                       <span className="text-[11px] text-gray-500 uppercase tracking-widest text-center mt-3 pt-2">пользователя <br/>зарегистрировано</span>
                     </div>
 
@@ -267,7 +267,7 @@ export function LandingPage() {
                         <Sparkles className="w-4 h-4 text-primary" />
                         <span className="font-semibold text-[13px] tracking-wide">Ваше место в списке</span>
                       </div>
-                      <span className="text-[3.5rem] leading-none font-bold text-primary tracking-tight">#{userData.position}</span>
+                      <span className="text-5xl md:text-[3.5rem] leading-none font-bold text-primary tracking-tight">#{userData.position}</span>
                       <span className="text-[11px] text-gray-500 uppercase tracking-widest text-center mt-3 pt-2">среди всех <br/>ожидающих</span>
                     </div>
                     
@@ -318,7 +318,7 @@ export function LandingPage() {
                       </a>
                       <button 
                         onClick={handleCopyLink}
-                        className="flex items-center justify-center gap-2 px-5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/20 text-gray-300 hover:text-white transition-all text-[13px] font-medium w-full sm:w-auto min-w-[170px]"
+                        className="flex items-center justify-center gap-2 px-5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/20 text-gray-300 hover:text-white transition-all text-[13px] font-medium w-full sm:w-auto sm:min-w-[170px]"
                       >
                         {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4 opacity-70" />}
                         {copied ? <span className="text-green-400">Скопировано!</span> : 'Скопировать ссылку'}
@@ -357,9 +357,9 @@ export function LandingPage() {
           <div className="absolute top-10 right-20 w-72 h-72 bg-primary/5 rounded-full blur-3xl"></div>
 
           <div className="max-w-7xl mx-auto px-8 sm:px-16 lg:px-24 relative z-10">
-            <div className="grid md:grid-cols-2 gap-20 lg:gap-24 items-center">
+            <div className="grid md:grid-cols-2 gap-12 md:gap-20 lg:gap-24 items-center">
               <div>
-                <h2 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-6 leading-tight">
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-6 leading-tight">
                   Живой аватар из <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-yellow-200 block md:inline">любого фото</span>
                 </h2>
                 <p className="text-lg text-gray-300 font-medium mb-8 leading-relaxed">
@@ -390,7 +390,7 @@ export function LandingPage() {
                 </ul>
               </div>
               <div className="relative">
-                <div className="aspect-square rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-xl p-4 relative shadow-[0_20px_80px_rgba(0,0,0,0.35)] overflow-hidden">
+                <div className="min-h-[480px] md:min-h-0 md:aspect-square rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-xl p-4 relative shadow-[0_20px_80px_rgba(0,0,0,0.35)] overflow-hidden">
                   {/* Mockup of UI */}
                   <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] to-transparent z-0"></div>
                   <div className="relative z-10 h-full flex flex-col">
@@ -404,7 +404,7 @@ export function LandingPage() {
                     </div>
 
                     <div className="flex-1 flex flex-col md:flex-row gap-4">
-                      <div className="flex-1 bg-black/20 rounded-xl border border-white/10 backdrop-blur-sm flex items-center justify-center relative overflow-hidden">
+                      <div className="flex-1 bg-black/20 rounded-xl border border-white/10 backdrop-blur-sm flex items-center justify-center relative overflow-hidden min-h-[140px] md:min-h-0">
                         <div className="text-gray-600 font-medium">Твоя камера</div>
                         <div className="absolute bottom-3 left-3 flex items-center gap-2">
                           <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
@@ -412,7 +412,7 @@ export function LandingPage() {
                         </div>
                       </div>
 
-                      <div className="flex-1 bg-black/25 rounded-xl border border-primary/30 relative overflow-hidden shadow-[0_0_30px_rgba(251,191,36,0.12)] backdrop-blur-sm">
+                      <div className="flex-1 bg-black/25 rounded-xl border border-primary/30 relative overflow-hidden shadow-[0_0_30px_rgba(251,191,36,0.12)] backdrop-blur-sm min-h-[220px] md:min-h-0">
                         <div className="absolute inset-0 flex flex-col items-center justify-center">
                           <div className="w-24 h-24 rounded-full bg-black/30 border-2 border-primary/50 flex items-center justify-center mb-4 relative backdrop-blur-sm">
                             <Users className="w-10 h-10 text-primary/80" />
@@ -436,7 +436,7 @@ export function LandingPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid md:grid-cols-2 gap-16 items-center">
               <div className="text-left">
-                <h2 ref={scenarioTitleRef} className="text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-6 leading-tight">
+                <h2 ref={scenarioTitleRef} className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-6 leading-tight">
                   {"Для любых сценариев".split("").map((char, index) => (
                     <span key={`${char}-${index}`} className="inline-block whitespace-pre opacity-0">
                       {char}
@@ -452,7 +452,7 @@ export function LandingPage() {
                 </p>
               </div>
 
-              <div className="flex items-center justify-center h-[400px] relative">
+              <div className="flex items-center justify-center h-[350px] sm:h-[400px] relative -translate-x-4 sm:-translate-x-8 md:-translate-x-12 translate-y-6 sm:translate-y-8 md:translate-y-10">
                 <CardStack items={scenarios} />
               </div>
             </div>
