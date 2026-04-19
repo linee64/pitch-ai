@@ -36,13 +36,23 @@ export function LandingPage() {
   useEffect(() => {
     const fetchRealData = async (email: string) => {
       try {
-        const { count } = await supabase.from('waitlist').select('*', { count: 'exact', head: true });
-        const { data } = await supabase.from('waitlist').select('position').eq('email', email).single();
+        // 1. Get total count of active users
+        const { count: totalCount } = await supabase.from('waitlist').select('*', { count: 'exact', head: true });
         
-        if (data && count !== null) {
-            localStorage.setItem('pitchai_position', data.position.toString());
-            localStorage.setItem('pitchai_total', count.toString());
-            setUserData({ email: email, position: data.position, total: count });
+        // 2. Get current user's registration time
+        const { data: userRecord } = await supabase.from('waitlist').select('created_at').eq('email', email).single();
+        
+        if (userRecord && totalCount !== null) {
+            // 3. Calculate position as the count of users who registered before or at the same time
+            const { count: rank } = await supabase.from('waitlist')
+              .select('*', { count: 'exact', head: true })
+              .lte('created_at', userRecord.created_at);
+
+            if (rank !== null) {
+                localStorage.setItem('pitchai_position', rank.toString());
+                localStorage.setItem('pitchai_total', totalCount.toString());
+                setUserData({ email: email, position: rank, total: totalCount });
+            }
         }
       } catch (err) {
         console.error("Error fetching waitlist stats", err);
