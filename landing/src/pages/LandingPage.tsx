@@ -32,34 +32,47 @@ export function LandingPage() {
     return null;
   });
 
-  // Fetch real data on mount
+  // Fetch real data on mount and listen for auth changes
   useEffect(() => {
-    const fetchRealData = async () => {
+    const fetchRealData = async (email: string) => {
       try {
         const { count } = await supabase.from('waitlist').select('*', { count: 'exact', head: true });
+        const { data } = await supabase.from('waitlist').select('position').eq('email', email).single();
         
-        let currentUserEmail = localStorage.getItem('pitchai_email');
-        if (!currentUserEmail) {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session?.user?.email) {
-                currentUserEmail = session.user.email;
-                localStorage.setItem('pitchai_email', currentUserEmail);
-            }
-        }
-
-        if (currentUserEmail) {
-            const { data } = await supabase.from('waitlist').select('position').eq('email', currentUserEmail).single();
-            if (data && count !== null) {
-                localStorage.setItem('pitchai_position', data.position.toString());
-                localStorage.setItem('pitchai_total', count.toString());
-                setUserData({ email: currentUserEmail, position: data.position, total: count });
-            }
+        if (data && count !== null) {
+            localStorage.setItem('pitchai_position', data.position.toString());
+            localStorage.setItem('pitchai_total', count.toString());
+            setUserData({ email: email, position: data.position, total: count });
         }
       } catch (err) {
-        console.error("Error fetching real waitlist data", err);
+        console.error("Error fetching waitlist stats", err);
       }
     };
-    fetchRealData();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user?.email) {
+        localStorage.setItem('pitchai_email', session.user.email);
+        fetchRealData(session.user.email);
+      } else {
+        // Only clear if we explicitly want to sign out, but for now we keep persistent local storage
+        // if the session just expires but we want to show waitlist status
+      }
+    });
+
+    // Initial check
+    const checkSession = async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user?.email) {
+            localStorage.setItem('pitchai_email', session.user.email);
+            fetchRealData(session.user.email);
+        } else {
+            const storedEmail = localStorage.getItem('pitchai_email');
+            if (storedEmail) fetchRealData(storedEmail);
+        }
+    };
+    checkSession();
+
+    return () => subscription.unsubscribe();
   }, []);
 
   // Hardcoded launch date to start the real countdown

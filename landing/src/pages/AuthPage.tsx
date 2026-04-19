@@ -129,6 +129,20 @@ export function AuthPage() {
     }
   };
 
+  const handleGoogleAuth = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin
+        }
+      });
+      if (error) alert('Ошибка Google авторизации: ' + error.message);
+    } catch (err: any) {
+      alert('Ошибка: ' + err.message);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-darker text-gray-100 font-sans selection:bg-primary selection:text-black relative flex flex-col justify-center items-center py-6 px-4 overflow-y-auto w-full">
       {/* Back Button */}
@@ -354,7 +368,10 @@ export function AuthPage() {
                   <div className="flex-grow border-t border-white/10"></div>
                 </div>
 
-                <button className="w-full flex items-center justify-center gap-3 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-colors py-3 rounded-xl group text-white font-medium text-sm">
+                <button 
+                  onClick={handleGoogleAuth}
+                  className="w-full flex items-center justify-center gap-3 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-colors py-3 rounded-xl group text-white font-medium text-sm"
+                >
                   <svg className="w-4 h-4 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
                     <path fill="#EA4335" d="M12 5.04c1.74 0 3.3.6 4.53 1.76l3.39-3.39C17.85 1.53 15.15 0 12 0 7.31 0 3.25 2.69 1.25 6.6l3.96 3.07C6.15 7.15 8.85 5.04 12 5.04z" /><path fill="#FBBC05" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58l3.89 3.02c2.27-2.1 3.53-5.2 3.53-8.84z" /><path fill="#4285F4" d="M5.21 14.73c-.25-.76-.39-1.56-.39-2.4 0-.84.14-1.64.39-2.4L1.25 6.6C.45 8.21 0 10.05 0 12s.45 3.79 1.25 5.4l3.96-3.07z" /><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.89-3.02c-1.11.75-2.53 1.19-4.04 1.19-3.15 0-5.85-2.11-6.8-5.04L1.25 17.4C3.25 21.31 7.31 24 12 24z" />
                   </svg>
