@@ -327,22 +327,22 @@ export function LandingPage() {
                   </div>
                 </div>
               ) : (
-                <div className="mt-16 max-w-[420px] mx-auto animate-in fade-in duration-500 border border-white/5 bg-black/20 p-2 pl-6 rounded-full shadow-2xl backdrop-blur-md hover:border-white/10 transition-colors">
-                  <form onSubmit={handleJoinWaitlist} className="flex items-center gap-3">
+                <div className="mt-16 max-w-[380px] sm:max-w-[420px] mx-auto animate-in fade-in duration-500 border border-white/5 bg-black/20 p-1.5 pl-4 sm:p-2 sm:pl-6 rounded-full shadow-2xl backdrop-blur-md hover:border-white/10 transition-colors">
+                  <form onSubmit={handleJoinWaitlist} className="flex items-center gap-2 sm:gap-3">
                     <input 
                       type="email" 
                       required
                       value={inputEmail}
                       onChange={(e) => setInputEmail(e.target.value)}
                       placeholder="Ваш Email"
-                      className="flex-1 bg-transparent border-none text-white placeholder-gray-500 focus:outline-none focus:ring-0 outline-none text-sm md:text-base"
+                      className="flex-1 bg-transparent border-none text-white placeholder-gray-500 focus:outline-none focus:ring-0 outline-none text-xs sm:text-sm md:text-base w-0"
                     />
                     <button 
                       type="submit"
-                      className="bg-primary hover:bg-primary/90 text-black font-bold py-3.5 px-6 rounded-full shadow-[0_0_15px_rgba(251,191,36,0.2)] hover:shadow-[0_0_20px_rgba(251,191,36,0.35)] transition-all flex justify-center items-center gap-2 whitespace-nowrap"
+                      className="bg-primary hover:bg-primary/90 text-black font-bold py-2.5 px-4 sm:py-3.5 sm:px-6 rounded-full shadow-[0_0_15px_rgba(251,191,36,0.2)] hover:shadow-[0_0_20px_rgba(251,191,36,0.35)] transition-all flex justify-center items-center gap-2 whitespace-nowrap text-xs sm:text-base"
                     >
                       Присоединиться 
-                      <ArrowRight className="w-4 h-4 ml-1" />
+                      <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 ml-0.5 sm:ml-1" />
                     </button>
                   </form>
                 </div>
