@@ -390,7 +390,7 @@ export function LandingPage() {
                 </ul>
               </div>
               <div className="relative">
-                <div className="min-h-[480px] md:min-h-0 md:aspect-square rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-xl p-4 relative shadow-[0_20px_80px_rgba(0,0,0,0.35)] overflow-hidden">
+                <div className="min-h-[540px] md:min-h-0 md:aspect-square rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-xl p-3 sm:p-4 relative shadow-[0_20px_80px_rgba(0,0,0,0.35)] overflow-hidden">
                   {/* Mockup of UI */}
                   <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] to-transparent z-0"></div>
                   <div className="relative z-10 h-full flex flex-col">
