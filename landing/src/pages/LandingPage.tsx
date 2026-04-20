@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import logo from '../logo-conflyy.jpeg';
 
-import { Play, Users, Clock, ArrowRight, CheckCircle2, Star, Sparkles, MonitorPlay, GraduationCap, Briefcase, Users2, Zap, Check, Copy } from 'lucide-react';
+import { Users, Clock, ArrowRight, CheckCircle2, Star, Sparkles, MonitorPlay, GraduationCap, Briefcase, Users2, Zap, Check, Copy } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { DarkVeil } from '../components/DarkVeil';
 import { DecryptedText } from '../components/DecryptedText';

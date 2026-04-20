@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import logo from '../logo-conflyy.jpeg';
 
-import { Play, Mail, Lock, ArrowRight, Users, Sparkles, Clock, Loader2, ArrowLeft } from 'lucide-react';
+import { Mail, Lock, ArrowRight, Users, Sparkles, Clock, Loader2, ArrowLeft } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { DarkVeil } from '../components/DarkVeil';
