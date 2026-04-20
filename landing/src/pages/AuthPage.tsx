@@ -3,23 +3,13 @@ import logo from '../logo-conflyy.jpeg';
 
 import { Mail, Lock, ArrowRight, Users, Sparkles, Clock, Loader2, ArrowLeft } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { translations } from '../lib/translations';
 import { supabase } from '../lib/supabase';
+
 import { DarkVeil } from '../components/DarkVeil';
 
-const slides = [
-  {
-    title: "Добро пожаловать \nв сообщество",
-    description: "Тренируй свои питчи, побеждай страх сцены и закрывай раунды уверенно вместе с ИИ."
-  },
-  {
-    title: "Анализ \nв реальном времени",
-    description: "Наш ИИ-аватар анализирует вашу скорость речи, эмоции, уверенность и зрительный контакт."
-  },
-  {
-    title: "Готовность \nна 100%",
-    description: "Отрепетируйте ответы на самые каверзные вопросы перед живым выступлением."
-  }
-];
+
+
 
 export function AuthPage() {
   const [isLogin] = useState(false); // Default to register for waitlist
@@ -35,7 +25,48 @@ export function AuthPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isWaitlisted] = useState(false);
   const [waitlistData] = useState({ total: 1284, position: 31 });
+  const [lang, setLang] = useState<'ru' | 'en'>(() => {
+    const saved = localStorage.getItem('confly_lang');
+    return (saved === 'en' || saved === 'ru') ? saved : 'ru';
+  });
+
+  const t = translations[lang];
+
+  const slides = lang === 'ru' ? [
+    {
+      title: "Добро пожаловать \nв сообщество",
+      description: "Тренируй свои питчи, побеждай страх сцены и закрывай раунды уверенно вместе с ИИ."
+    },
+    {
+      title: "Анализ \nв реальном времени",
+      description: "Наш ИИ-аватар анализирует вашу скорость речи, эмоции, уверенность и зрительный контакт."
+    },
+    {
+      title: "Готовность \nна 100%",
+      description: "Отрепетируйте ответы на самые каверзные вопросы перед живым выступлением."
+    }
+  ] : [
+    {
+      title: "Welcome to the \ncommunity",
+      description: "Train your pitches, overcome stage fright, and close rounds confidently with AI."
+    },
+    {
+      title: "Real-time \nanalysis",
+      description: "Our AI avatar analyzes your speech rate, emotions, confidence, and eye contact."
+    },
+    {
+      title: "100% \nReadiness",
+      description: "Rehearse answers to the trickiest questions before your live performance."
+    }
+  ];
+
+
+  useEffect(() => {
+    localStorage.setItem('confly_lang', lang);
+  }, [lang]);
+
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
 
   const navigate = useNavigate();
 
@@ -147,13 +178,31 @@ export function AuthPage() {
 
   return (
     <div className="min-h-screen bg-darker text-gray-100 font-sans selection:bg-primary selection:text-black relative flex flex-col justify-center items-center py-6 px-4 overflow-y-auto w-full">
-      {/* Back Button */}
-      <Link to="/" className="fixed top-6 left-6 md:top-8 md:left-8 flex items-center gap-2.5 text-gray-500 hover:text-white transition-colors z-50 group">
-        <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-white/10 group-hover:border-white/20 transition-all shadow-lg backdrop-blur-sm">
-          <ArrowLeft className="w-4 h-4" />
+      {/* Back Button and Language Toggle */}
+      <div className="fixed top-6 left-6 right-6 md:top-8 md:left-8 md:right-8 flex items-center justify-between z-50">
+        <Link to="/" className="flex items-center gap-2.5 text-gray-500 hover:text-white transition-colors group">
+          <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-white/10 group-hover:border-white/20 transition-all shadow-lg backdrop-blur-sm">
+            <ArrowLeft className="w-4 h-4" />
+          </div>
+          <span className="font-medium text-sm tracking-wide">{lang === 'ru' ? 'Назад' : 'Back'}</span>
+        </Link>
+
+        {/* Language Switcher */}
+        <div className="flex items-center bg-white/5 border border-white/10 rounded-lg p-1 backdrop-blur-sm shadow-lg">
+          <button 
+            onClick={() => setLang('ru')}
+            className={`px-2 py-1 text-[10px] font-bold rounded transition-all ${lang === 'ru' ? 'bg-primary text-black' : 'text-gray-500 hover:text-gray-300'}`}
+          >
+            RU
+          </button>
+          <button 
+            onClick={() => setLang('en')}
+            className={`px-2 py-1 text-[10px] font-bold rounded transition-all ${lang === 'en' ? 'bg-primary text-black' : 'text-gray-500 hover:text-gray-300'}`}
+          >
+            EN
+          </button>
         </div>
-        <span className="font-medium text-sm tracking-wide">Назад</span>
-      </Link>
+      </div>
 
       {/* Background DarkVeil Component, positioned fixed so scrolling works over it */}
       <div className="fixed inset-[-1%] w-[102%] h-[102%] z-0 pointer-events-none" style={{ transform: 'translateZ(0)', willChange: 'transform' }}>
@@ -199,7 +248,8 @@ export function AuthPage() {
               </div>
               <div className="flex flex-col">
                 <span className="font-bold text-2xl tracking-tight text-white group-hover:text-primary transition-colors leading-none mb-1">Confly</span>
-                <span className="text-[10px] sm:text-xs text-gray-400 font-medium tracking-wide uppercase opacity-80 group-hover:opacity-100 transition-opacity">Тренируйся. Практикуйся. Побеждай.</span>
+                <span className="text-[10px] sm:text-xs text-gray-400 font-medium tracking-wide uppercase opacity-80 group-hover:opacity-100 transition-opacity">{lang === 'ru' ? 'Тренируйся. Практикуйся. Побеждай.' : 'Train. Practice. Win.'}</span>
+
               </div>
             </Link>
 
@@ -254,10 +304,11 @@ export function AuthPage() {
                 
                 <div className="flex items-center gap-2.5 mb-5 relative z-10 text-gray-300">
                   <Sparkles className="w-[18px] h-[18px] text-primary" />
-                  <span className="text-[15px] font-semibold tracking-wide">Ваше место в списке</span>
+                  <span className="text-[15px] font-semibold tracking-wide">{t.waitlist.yourPosition}</span>
                 </div>
                 <div className="text-7xl md:text-[6rem] leading-[0.85] font-black text-primary mb-3 tracking-tighter relative z-10 drop-shadow-[0_2px_15px_rgba(251,191,36,0.2)]">#{waitlistData.position}</div>
-                <span className="text-[13px] text-gray-500 relative z-10 font-medium pt-2">среди всех ожидающих</span>
+                <span className="text-[13px] text-gray-500 relative z-10 font-medium pt-2">{t.waitlist.amongEveryone}</span>
+
               </div>
 
               {/* Two bottom boxes side by side */}
@@ -266,48 +317,50 @@ export function AuthPage() {
                 <div className="bg-[#18191b] border border-white/5 rounded-[22px] p-4 py-5 flex flex-col items-center justify-center text-center hover:bg-[#1a1b1d] transition-colors">
                   <div className="flex items-center gap-2 mb-4 text-gray-300">
                     <Users className="w-4 h-4" />
-                    <span className="text-[13px] font-semibold tracking-wide">Уже ждут демо</span>
+                    <span className="text-[13px] font-semibold tracking-wide">{t.waitlist.alreadyWaiting}</span>
                   </div>
                   <div className="text-2xl md:text-[28px] font-bold text-white tracking-tight leading-none mb-3">{waitlistData.total.toLocaleString('ru-RU')}</div>
-                  <span className="text-[9px] text-gray-500 uppercase tracking-widest leading-[1.5]">ПОЛЬЗОВАТЕЛЯ<br/>ЗАРЕГИСТРИРОВАНО</span>
+                  <span className="text-[9px] text-gray-500 uppercase tracking-widest leading-[1.5]">{t.waitlist.registeredSuffix}</span>
+
                 </div>
 
                 {/* Box 3: Таймер */}
                 <div className="bg-[#18191b] border border-white/5 rounded-[22px] p-4 py-5 flex flex-col items-center justify-center text-center hover:bg-[#1a1b1d] transition-colors">
                   <div className="flex items-center gap-2 mb-4 text-gray-300">
                     <Clock className="w-4 h-4" />
-                    <span className="text-[13px] font-semibold tracking-wide">До открытия демо</span>
+                    <span className="text-[13px] font-semibold tracking-wide">{t.waitlist.openingSoon}</span>
                   </div>
+
                   
                   <div className="flex gap-1.5 text-center items-end justify-center w-full">
                     <div className="flex flex-col items-center w-8">
                       <span className="text-[22px] md:text-[26px] font-bold text-primary tracking-tight leading-none mb-1.5">{timeLeft.days.toString().padStart(2, '0')}</span>
-                      <span className="text-[8px] text-gray-500 uppercase tracking-[0.1em]">Дни</span>
+                      <span className="text-[8px] text-gray-500 uppercase tracking-[0.1em]">{t.waitlist.days}</span>
                     </div>
                     <span className="text-xl font-bold text-gray-600 mb-[18px] opacity-70">:</span>
                     <div className="flex flex-col items-center w-8">
                       <span className="text-[22px] md:text-[26px] font-bold text-primary tracking-tight leading-none mb-1.5">{timeLeft.hours.toString().padStart(2, '0')}</span>
-                      <span className="text-[8px] text-gray-500 uppercase tracking-[0.1em]">Часы</span>
+                      <span className="text-[8px] text-gray-500 uppercase tracking-[0.1em]">{t.waitlist.hours}</span>
                     </div>
                     <span className="text-xl font-bold text-gray-600 mb-[18px] opacity-70">:</span>
                     <div className="flex flex-col items-center w-8">
                       <span className="text-[22px] md:text-[26px] font-bold text-primary tracking-tight leading-none mb-1.5">{timeLeft.minutes.toString().padStart(2, '0')}</span>
-                      <span className="text-[8px] text-gray-500 uppercase tracking-[0.1em]">Мин</span>
+                      <span className="text-[8px] text-gray-500 uppercase tracking-[0.1em]">{t.waitlist.mins}</span>
                     </div>
                     <span className="text-xl font-bold text-gray-600 mb-[18px] opacity-70">:</span>
                     <div className="flex flex-col items-center w-8">
                       <span className="text-[22px] md:text-[26px] font-bold text-primary tracking-tight leading-none mb-1.5">{timeLeft.seconds.toString().padStart(2, '0')}</span>
-                      <span className="text-[8px] text-gray-500 uppercase tracking-[0.1em]">Сек</span>
+                      <span className="text-[8px] text-gray-500 uppercase tracking-[0.1em]">{t.waitlist.secs}</span>
                     </div>
+
                   </div>
                 </div>
               </div>
             </div>
           ) : (
-            /* REGISTRATION / LOGIN FORM */
             <div className="w-full max-w-[320px] mx-auto">
               <h1 className="text-2xl font-extrabold text-white mb-6 text-center md:text-left tracking-tight">
-                {isLogin ? 'С возвращением!' : 'Создайте аккаунт'}
+                {isLogin ? (lang === 'ru' ? 'С возвращением!' : 'Welcome back!') : (lang === 'ru' ? 'Создайте аккаунт' : 'Create an account')}
               </h1>
 
               <form className="space-y-3.5" onSubmit={handleAuth}>
@@ -321,7 +374,7 @@ export function AuthPage() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Email"
+                    placeholder={t.hero.emailPlaceholder}
                     className="w-full pl-10 pr-4 py-3 bg-black/40 border border-white/10 rounded-xl text-white placeholder-gray-500 hover:border-white/20 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all outline-none text-sm"
                   />
                 </div>
@@ -336,14 +389,14 @@ export function AuthPage() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Пароль"
+                    placeholder={t.hero.passwordPlaceholder}
                     className="w-full pl-10 pr-4 py-3 bg-black/40 border border-white/10 rounded-xl text-white placeholder-gray-500 hover:border-white/20 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all outline-none text-sm"
                   />
                 </div>
 
                 <div className="flex justify-end pt-0.5">
                   <a href="#" className="text-xs font-medium text-gray-400 hover:text-primary transition-colors">
-                    Забыли пароль?
+                    {lang === 'ru' ? 'Забыли пароль?' : 'Forgot password?'}
                   </a>
                 </div>
 
@@ -355,7 +408,7 @@ export function AuthPage() {
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
                     <>
-                      {isLogin ? 'Войти' : 'Продолжить'}
+                      {isLogin ? (lang === 'ru' ? 'Войти' : 'Sign In') : (lang === 'ru' ? 'Продолжить' : 'Continue')}
                       <ArrowRight className="w-4 h-4" />
                     </>
                   )}
@@ -366,7 +419,7 @@ export function AuthPage() {
               <div className="mt-6 text-center">
                 <div className="relative flex items-center mb-5">
                   <div className="flex-grow border-t border-white/10"></div>
-                  <span className="flex-shrink-0 mx-4 text-[10px] font-semibold text-gray-500 uppercase tracking-widest whitespace-nowrap">Или продолжить через</span>
+                  <span className="flex-shrink-0 mx-4 text-[10px] font-semibold text-gray-500 uppercase tracking-widest whitespace-nowrap">{lang === 'ru' ? 'Или продолжить через' : 'Or continue with'}</span>
                   <div className="flex-grow border-t border-white/10"></div>
                 </div>
 
