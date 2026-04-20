@@ -45,53 +45,56 @@ export function LandingPage() {
     return null;
   });
 
+  const [totalCount, setTotalCount] = useState<number>(0);
+
   // Fetch real data on mount and listen for auth changes
   useEffect(() => {
-    const fetchRealData = async (email: string) => {
+    const fetchTotalCount = async () => {
       try {
-        // 1. Get total count of active users
-        const { count: totalCount } = await supabase.from('waitlist').select('*', { count: 'exact', head: true });
-        
-        // 2. Get current user's registration time
-        const { data: userRecord } = await supabase.from('waitlist').select('created_at').eq('email', email).single();
-        
-        if (userRecord && totalCount !== null) {
-            // 3. Calculate position as the count of users who registered before or at the same time
-            const { count: rank } = await supabase.from('waitlist')
-              .select('*', { count: 'exact', head: true })
-              .lte('created_at', userRecord.created_at);
-
-            if (rank !== null) {
-                localStorage.setItem('confly_position', rank.toString());
-                localStorage.setItem('confly_total', totalCount.toString());
-                setUserData({ email: email, position: rank, total: totalCount });
-            }
-        }
+        const { count } = await supabase.from('waitlist').select('*', { count: 'exact', head: true });
+        if (count !== null) setTotalCount(count);
       } catch (err) {
-        console.error("Error fetching waitlist stats", err);
+        console.error("Error fetching total waitlist count", err);
       }
     };
+
+    const fetchUserRank = async (email: string) => {
+      try {
+        const { data: userRecord } = await supabase.from('waitlist').select('created_at').eq('email', email).single();
+        if (userRecord) {
+          const { count: rank } = await supabase.from('waitlist')
+            .select('*', { count: 'exact', head: true })
+            .lte('created_at', userRecord.created_at);
+
+          if (rank !== null) {
+            localStorage.setItem('confly_position', rank.toString());
+            setUserData(prev => prev ? { ...prev, position: rank } : { email, position: rank, total: 0 });
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching user rank", err);
+      }
+    };
+
+    fetchTotalCount();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user?.email) {
         localStorage.setItem('confly_email', session.user.email);
-        fetchRealData(session.user.email);
-      } else {
-        // Only clear if we explicitly want to sign out, but for now we keep persistent local storage
-        // if the session just expires but we want to show waitlist status
+        setUserData(prev => ({ email: session.user!.email!, position: prev?.position || 0, total: 0 }));
+        fetchUserRank(session.user.email);
       }
     });
 
-    // Initial check
     const checkSession = async () => {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user?.email) {
-            localStorage.setItem('confly_email', session.user.email);
-            fetchRealData(session.user.email);
-        } else {
-            const storedEmail = localStorage.getItem('confly_email');
-            if (storedEmail) fetchRealData(storedEmail);
-        }
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user?.email) {
+        localStorage.setItem('confly_email', session.user.email);
+        fetchUserRank(session.user.email);
+      } else {
+        const storedEmail = localStorage.getItem('confly_email');
+        if (storedEmail) fetchUserRank(storedEmail);
+      }
     };
     checkSession();
 
@@ -278,67 +281,95 @@ export function LandingPage() {
                 {t.hero.description}
               </p>
 
-              {/* Stats & Timer OR Registration Form */}
-              {userData ? (
-                <div className="mt-16 bg-black/40 border border-white/5 py-8 max-w-[900px] mx-auto shadow-2xl relative overflow-hidden backdrop-blur-xl rounded-2xl animate-in fade-in duration-[400ms] fill-mode-forwards">
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
+              {/* Stats Card - Now shown for everyone */}
+              <div className="mt-16 bg-black/40 border border-white/5 py-8 max-w-[900px] mx-auto shadow-2xl relative overflow-hidden backdrop-blur-xl rounded-2xl animate-in fade-in duration-[400ms] fill-mode-forwards">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-0 relative z-10 px-2 sm:px-4">
                   
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-0 relative z-10 px-2 sm:px-4">
-                    
-                    {/* Užhe ždut demo */}
-                    <div className="flex flex-col items-center justify-center space-y-1 md:border-r border-white/5 py-2">
-                      <div className="flex items-center gap-2 text-gray-400 mb-3">
-                        <Users className="w-4 h-4" />
-                        <span className="font-semibold text-[13px] tracking-wide">{t.waitlist.alreadyWaiting}</span>
-                      </div>
-                      <span className="text-5xl md:text-[3.5rem] leading-none font-bold text-white tracking-tight">{userData.total.toLocaleString()}</span>
-                      <span className="text-[11px] text-gray-500 uppercase tracking-widest text-center mt-3 pt-2">{t.waitlist.registeredSuffix}</span>
+                  {/* Užhe ždut demo */}
+                  <div className="flex flex-col items-center justify-center space-y-1 md:border-r border-white/5 py-2">
+                    <div className="flex items-center gap-2 text-gray-400 mb-3">
+                      <Users className="w-4 h-4" />
+                      <span className="font-semibold text-[13px] tracking-wide">{t.waitlist.alreadyWaiting}</span>
                     </div>
+                    <span className="text-5xl md:text-[3.5rem] leading-none font-bold text-white tracking-tight">{(userData?.total || totalCount).toLocaleString()}</span>
+                    <span className="text-[11px] text-gray-500 uppercase tracking-widest text-center mt-3 pt-2">{t.waitlist.registeredSuffix}</span>
+                  </div>
 
-                    {/* Vashe mesto v spiske */}
-                    <div className="flex flex-col items-center justify-center space-y-1 py-2 relative">
-                      <div className="flex items-center gap-2 text-gray-400 mb-3">
-                        <Sparkles className="w-4 h-4 text-primary" />
-                        <span className="font-semibold text-[13px] tracking-wide">{t.waitlist.yourPosition}</span>
-                      </div>
-                      <span className="text-5xl md:text-[3.5rem] leading-none font-bold text-primary tracking-tight">#{userData.position}</span>
-                      <span className="text-[11px] text-gray-500 uppercase tracking-widest text-center mt-3 pt-2">{t.waitlist.amongEveryone}</span>
+                  {/* Vashe mesto v spiske */}
+                  <div className="flex flex-col items-center justify-center space-y-1 py-2 relative">
+                    <div className="flex items-center gap-2 text-gray-400 mb-3">
+                      <Sparkles className="w-4 h-4 text-primary" />
+                      <span className="font-semibold text-[13px] tracking-wide">{t.waitlist.yourPosition}</span>
                     </div>
-                    
-                    {/* Do otkrîtiya demo */}
-                    <div className="flex flex-col items-center justify-center space-y-1 md:border-l border-white/5 py-2">
-                      <div className="flex items-center gap-2 text-gray-400 mb-3">
-                        <Clock className="w-4 h-4" />
-                        <span className="font-semibold text-[13px] tracking-wide">{t.waitlist.openingSoon}</span>
+                    {userData ? (
+                      <span className="text-5xl md:text-[3.5rem] leading-none font-bold text-primary tracking-tight">#{userData.position}</span>
+                    ) : (
+                      <span className="text-5xl md:text-[3.5rem] leading-none font-bold text-primary/30 tracking-tight">#?</span>
+                    )}
+                    <span className="text-[11px] text-gray-500 uppercase tracking-widest text-center mt-3 pt-2">{t.waitlist.amongEveryone}</span>
+                  </div>
+                  
+                  {/* Do otkrîtiya demo */}
+                  <div className="flex flex-col items-center justify-center space-y-1 md:border-l border-white/5 py-2">
+                    <div className="flex items-center gap-2 text-gray-400 mb-3">
+                      <Clock className="w-4 h-4" />
+                      <span className="font-semibold text-[13px] tracking-wide">{t.waitlist.openingSoon}</span>
+                    </div>
+                    <div className="flex gap-2 text-center items-end justify-center w-full mt-1">
+                      <div className="flex flex-col items-center w-12">
+                        <span className="text-4xl font-bold text-primary tracking-tight leading-none">{timeLeft.days}</span>
+                        <span className="text-[9px] text-gray-500 uppercase tracking-widest mt-3">{t.waitlist.days}</span>
                       </div>
-                      <div className="flex gap-2 text-center items-end justify-center w-full mt-1">
-                        <div className="flex flex-col items-center w-12">
-                          <span className="text-4xl font-bold text-primary tracking-tight leading-none">{timeLeft.days}</span>
-                          <span className="text-[9px] text-gray-500 uppercase tracking-widest mt-3">{t.waitlist.days}</span>
-                        </div>
-                        <span className="text-2xl font-bold text-gray-600 mb-5 relative -top-[1px]">:</span>
-                        <div className="flex flex-col items-center w-12">
-                          <span className="text-4xl font-bold text-primary tracking-tight leading-none">{timeLeft.hours.toString().padStart(2, '0')}</span>
-                          <span className="text-[9px] text-gray-500 uppercase tracking-widest mt-3">{t.waitlist.hours}</span>
-                        </div>
-                        <span className="text-2xl font-bold text-gray-600 mb-5 relative -top-[1px]">:</span>
-                        <div className="flex flex-col items-center w-12">
-                          <span className="text-4xl font-bold text-primary tracking-tight leading-none">{timeLeft.minutes.toString().padStart(2, '0')}</span>
-                          <span className="text-[9px] text-gray-500 uppercase tracking-widest mt-3">{t.waitlist.mins}</span>
-                        </div>
-                        <span className="text-2xl font-bold text-gray-600 mb-5 relative -top-[1px]">:</span>
-                        <div className="flex flex-col items-center w-12">
-                          <span className="text-4xl font-bold text-primary tracking-tight leading-none">{timeLeft.seconds.toString().padStart(2, '0')}</span>
-                          <span className="text-[9px] text-gray-500 uppercase tracking-widest mt-3">{t.waitlist.secs}</span>
-                        </div>
+                      <span className="text-2xl font-bold text-gray-600 mb-5 relative -top-[1px]">:</span>
+                      <div className="flex flex-col items-center w-12">
+                        <span className="text-4xl font-bold text-primary tracking-tight leading-none">{timeLeft.hours.toString().padStart(2, '0')}</span>
+                        <span className="text-[9px] text-gray-500 uppercase tracking-widest mt-3">{t.waitlist.hours}</span>
+                      </div>
+                      <span className="text-2xl font-bold text-gray-600 mb-5 relative -top-[1px]">:</span>
+                      <div className="flex flex-col items-center w-12">
+                        <span className="text-4xl font-bold text-primary tracking-tight leading-none">{timeLeft.minutes.toString().padStart(2, '0')}</span>
+                        <span className="text-[9px] text-gray-500 uppercase tracking-widest mt-3">{t.waitlist.mins}</span>
+                      </div>
+                      <span className="text-2xl font-bold text-gray-600 mb-5 relative -top-[1px]">:</span>
+                      <div className="flex flex-col items-center w-12">
+                        <span className="text-4xl font-bold text-primary tracking-tight leading-none">{timeLeft.seconds.toString().padStart(2, '0')}</span>
+                        <span className="text-[9px] text-gray-500 uppercase tracking-widest mt-3">{t.waitlist.secs}</span>
                       </div>
                     </div>
                   </div>
+                </div>
 
-                  {/* Share nudge row */}
+                {!userData && (
+                  <div className="mt-8 pt-8 border-t border-white/5 flex flex-col items-center w-full relative z-10 px-6">
+                    <div className="max-w-[380px] w-full border border-white/5 bg-black/20 p-1.5 pl-4 sm:p-2 sm:pl-6 rounded-full shadow-2xl backdrop-blur-md hover:border-white/10 transition-colors">
+                      <form onSubmit={handleJoinWaitlist} className="flex items-center gap-2 sm:gap-3">
+                        <input 
+                          type="email" 
+                          required
+                          value={inputEmail}
+                          onChange={(e) => setInputEmail(e.target.value)}
+                          placeholder={t.hero.emailPlaceholder}
+                          className="flex-1 bg-transparent border-none text-white placeholder-gray-500 focus:outline-none focus:ring-0 outline-none text-xs sm:text-sm md:text-base w-0"
+                        />
+                        <button 
+                          type="submit"
+                          className="bg-primary hover:bg-primary/90 text-black font-bold py-2.5 px-4 sm:py-3.5 sm:px-6 rounded-full shadow-[0_0_15px_rgba(251,191,36,0.2)] hover:shadow-[0_0_20px_rgba(251,191,36,0.35)] transition-all flex justify-center items-center gap-2 whitespace-nowrap text-xs sm:text-base"
+                        >
+                          {t.hero.join} 
+                          <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 ml-0.5 sm:ml-1" />
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                )}
+
+                {/* Share nudge row - only for waitlisted users */}
+                {userData && (
                   <div className="mt-8 pt-6 border-t border-white/5 flex flex-col items-center w-full relative z-10 px-6">
                     <div className="text-gray-400 text-sm font-medium mb-4 flex items-center gap-2">
-                       Поделитесь ссылкой, чтобы подняться в списке
+                       {t.waitlist.shareNudge}
                     </div>
                     <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto justify-center">
                       <a 
@@ -359,28 +390,8 @@ export function LandingPage() {
                       </button>
                     </div>
                   </div>
-                </div>
-              ) : (
-                <div className="mt-16 max-w-[380px] sm:max-w-[420px] mx-auto animate-in fade-in duration-500 border border-white/5 bg-black/20 p-1.5 pl-4 sm:p-2 sm:pl-6 rounded-full shadow-2xl backdrop-blur-md hover:border-white/10 transition-colors">
-                  <form onSubmit={handleJoinWaitlist} className="flex items-center gap-2 sm:gap-3">
-                    <input 
-                      type="email" 
-                      required
-                      value={inputEmail}
-                      onChange={(e) => setInputEmail(e.target.value)}
-                      placeholder={t.hero.emailPlaceholder}
-                      className="flex-1 bg-transparent border-none text-white placeholder-gray-500 focus:outline-none focus:ring-0 outline-none text-xs sm:text-sm md:text-base w-0"
-                    />
-                    <button 
-                      type="submit"
-                      className="bg-primary hover:bg-primary/90 text-black font-bold py-2.5 px-4 sm:py-3.5 sm:px-6 rounded-full shadow-[0_0_15px_rgba(251,191,36,0.2)] hover:shadow-[0_0_20px_rgba(251,191,36,0.35)] transition-all flex justify-center items-center gap-2 whitespace-nowrap text-xs sm:text-base"
-                    >
-                      {t.hero.join} 
-                      <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 ml-0.5 sm:ml-1" />
-                    </button>
-                  </form>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </section>
