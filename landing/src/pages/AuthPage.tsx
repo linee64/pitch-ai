@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import logo from '../logo-conflyy.jpeg';
+
 import { Play, Mail, Lock, ArrowRight, Users, Sparkles, Clock, Loader2, ArrowLeft } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
@@ -38,7 +40,7 @@ export function AuthPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (localStorage.getItem('pitchai_email')) {
+    if (localStorage.getItem('confly_email')) {
       navigate('/');
     }
   }, [navigate]);
@@ -113,12 +115,12 @@ export function AuthPage() {
       const { count } = await supabase.from('waitlist').select('*', { count: 'exact', head: true });
       const { data: userRow } = await supabase.from('waitlist').select('position').eq('email', email).single();
 
-      localStorage.setItem('pitchai_email', email);
+      localStorage.setItem('confly_email', email);
       if (userRow) {
-         localStorage.setItem('pitchai_position', userRow.position.toString());
+         localStorage.setItem('confly_position', userRow.position.toString());
       }
       if (count !== null) {
-         localStorage.setItem('pitchai_total', count.toString());
+         localStorage.setItem('confly_total', count.toString());
       }
 
       navigate('/');
@@ -174,7 +176,7 @@ export function AuthPage() {
         {/* Subtle inner top highlight */}
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent pointer-events-none z-20"></div>
 
-        {/* === Left Side: Decor / PitchAI Branding === */}
+        {/* === Left Side: Decor / Confly Branding === */}
         <div className="w-full md:w-[45%] relative bg-gradient-to-br from-primary/10 via-transparent to-transparent flex flex-col p-5 sm:p-8 border-b md:border-b-0 md:border-r border-white/10 overflow-hidden min-h-[230px] sm:min-h-[280px] md:min-h-auto flex-shrink-0">
 
           {/* Abstract background shapes */}
@@ -192,11 +194,11 @@ export function AuthPage() {
 
           <div className="relative z-10 flex flex-col h-full">
             <Link to="/" className="flex items-center gap-3.5 mb-8 w-max group">
-              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center transition-transform group-hover:scale-105 shadow-[0_0_15px_rgba(251,191,36,0.2)] shrink-0">
-                <Play className="w-4 h-4 text-black fill-black ml-0.5" />
+              <div className="w-12 h-12 rounded-xl overflow-hidden flex items-center justify-center transition-transform group-hover:scale-105 shadow-[0_0_15px_rgba(251,191,36,0.15)] shrink-0">
+                <img src={logo} alt="Confly Logo" className="w-full h-full object-cover" />
               </div>
               <div className="flex flex-col">
-                <span className="font-bold text-2xl tracking-tight text-white group-hover:text-primary transition-colors leading-none mb-1">PitchAI</span>
+                <span className="font-bold text-2xl tracking-tight text-white group-hover:text-primary transition-colors leading-none mb-1">Confly</span>
                 <span className="text-[10px] sm:text-xs text-gray-400 font-medium tracking-wide uppercase opacity-80 group-hover:opacity-100 transition-opacity">Тренируйся. Практикуйся. Побеждай.</span>
               </div>
             </Link>

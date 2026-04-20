@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import logo from '../logo-conflyy.jpeg';
+
 import { Play, Users, Clock, ArrowRight, CheckCircle2, Star, Sparkles, MonitorPlay, GraduationCap, Briefcase, Users2, Zap, Check, Copy } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { DarkVeil } from '../components/DarkVeil';
@@ -21,12 +23,12 @@ export function LandingPage() {
 
   // Initialize userData from localStorage synchronously to avoid flash
   const [userData, setUserData] = useState<{ email: string; position: number; total: number } | null>(() => {
-    const email = localStorage.getItem('pitchai_email');
+    const email = localStorage.getItem('confly_email');
     if (email) {
       return {
         email,
-        position: parseInt(localStorage.getItem('pitchai_position') || '0', 10) || 0,
-        total: parseInt(localStorage.getItem('pitchai_total') || '0', 10) || 0,
+        position: parseInt(localStorage.getItem('confly_position') || '0', 10) || 0,
+        total: parseInt(localStorage.getItem('confly_total') || '0', 10) || 0,
       };
     }
     return null;
@@ -49,8 +51,8 @@ export function LandingPage() {
               .lte('created_at', userRecord.created_at);
 
             if (rank !== null) {
-                localStorage.setItem('pitchai_position', rank.toString());
-                localStorage.setItem('pitchai_total', totalCount.toString());
+                localStorage.setItem('confly_position', rank.toString());
+                localStorage.setItem('confly_total', totalCount.toString());
                 setUserData({ email: email, position: rank, total: totalCount });
             }
         }
@@ -61,7 +63,7 @@ export function LandingPage() {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user?.email) {
-        localStorage.setItem('pitchai_email', session.user.email);
+        localStorage.setItem('confly_email', session.user.email);
         fetchRealData(session.user.email);
       } else {
         // Only clear if we explicitly want to sign out, but for now we keep persistent local storage
@@ -73,10 +75,10 @@ export function LandingPage() {
     const checkSession = async () => {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user?.email) {
-            localStorage.setItem('pitchai_email', session.user.email);
+            localStorage.setItem('confly_email', session.user.email);
             fetchRealData(session.user.email);
         } else {
-            const storedEmail = localStorage.getItem('pitchai_email');
+            const storedEmail = localStorage.getItem('confly_email');
             if (storedEmail) fetchRealData(storedEmail);
         }
     };
@@ -231,10 +233,10 @@ export function LandingPage() {
       <nav className="border-b border-border/50 bg-dark/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-8 sm:px-12 lg:px-16 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <Play className="w-5 h-5 text-black fill-black" />
+            <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center">
+              <img src={logo} alt="Confly Logo" className="w-full h-full object-cover" />
             </div>
-            <span className="font-bold text-xl tracking-tight text-white">PitchAI</span>
+            <span className="font-bold text-xl tracking-tight text-white">Confly</span>
           </div>
           {userData ? (
             <div className="text-sm font-medium text-primary border border-primary/30 px-5 py-2.5 rounded-xl flex items-center gap-2 cursor-default bg-primary/5">
@@ -331,7 +333,7 @@ export function LandingPage() {
                     </div>
                     <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto justify-center">
                       <a 
-                        href={'https://twitter.com/intent/tweet?text=' + encodeURIComponent('Я в списке ожидания PitchAI — тренажера презентаций с ИИ! Присоединяйтесь: ' + window.location.origin)}
+                        href={'https://twitter.com/intent/tweet?text=' + encodeURIComponent('Я в списке ожидания Confly — тренажера презентаций с ИИ! Присоединяйтесь: ' + window.location.origin)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center justify-center gap-2 px-5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/20 text-gray-300 hover:text-white transition-all text-[13px] font-medium w-full sm:w-auto"
@@ -487,13 +489,13 @@ export function LandingPage() {
       <footer className="border-t border-white/10 bg-white/[0.03] backdrop-blur-xl py-6">
         <div className="max-w-7xl mx-auto px-8 sm:px-12 lg:px-16 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded bg-primary flex items-center justify-center">
-              <Play className="w-3 h-3 text-black fill-black" />
+            <div className="w-8 h-8 rounded overflow-hidden flex items-center justify-center">
+              <img src={logo} alt="Confly Logo" className="w-full h-full object-cover" />
             </div>
-            <span className="font-bold text-lg tracking-tight text-white">PitchAI</span>
+            <span className="font-bold text-lg tracking-tight text-white">Confly</span>
           </div>
           <div className="text-sm text-gray-500">
-            © 2026 PitchAI. Все права защищены.
+            © 2026 Confly. Все права защищены.
           </div>
         </div>
       </footer>
