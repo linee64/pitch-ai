@@ -60,19 +60,34 @@ export function LandingPage() {
 
     const fetchUserRank = async (email: string) => {
       try {
-        const { data: userRecord } = await supabase.from('waitlist').select('created_at').eq('email', email).single();
-        if (userRecord) {
-          const { count: rank } = await supabase.from('waitlist')
-            .select('*', { count: 'exact', head: true })
-            .lte('created_at', userRecord.created_at);
+        const { data: userRecord, error } = await supabase.from('waitlist').select('created_at').eq('email', email).single();
+        
+        if (error || !userRecord) {
+          // User deleted from DB, clear local state
+          localStorage.removeItem('confly_email');
+          localStorage.removeItem('confly_position');
+          localStorage.removeItem('confly_total');
+          setUserData(null);
+          return;
+        }
 
-          if (rank !== null) {
-            localStorage.setItem('confly_position', rank.toString());
-            setUserData(prev => prev ? { ...prev, position: rank } : { email, position: rank, total: 0 });
-          }
+        const { count: rank } = await supabase.from('waitlist')
+          .select('*', { count: 'exact', head: true })
+          .lte('created_at', userRecord.created_at);
+
+        if (rank !== null) {
+          localStorage.setItem('confly_position', rank.toString());
+          setUserData(prev => prev ? { ...prev, position: rank } : { email, position: rank, total: 0 });
         }
       } catch (err) {
         console.error("Error fetching user rank", err);
+        // Also clear if we get a specific "No rows found" error
+        if ((err as any).code === 'PGRST116') {
+          localStorage.removeItem('confly_email');
+          localStorage.removeItem('confly_position');
+          localStorage.removeItem('confly_total');
+          setUserData(null);
+        }
       }
     };
 

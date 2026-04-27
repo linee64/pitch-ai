@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import logo from '../logo-conflyy.jpeg';
 
-import { Mail, Lock, ArrowRight, Users, Sparkles, Clock, Loader2, ArrowLeft } from 'lucide-react';
+import { Mail, Lock, ArrowRight, Users, Sparkles, Clock, Loader2, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { translations } from '../lib/translations';
 import { supabase } from '../lib/supabase';
@@ -24,6 +24,7 @@ export function AuthPage() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isWaitlisted] = useState(false);
+  const [isEmailSent, setIsEmailSent] = useState(false);
   const [waitlistData] = useState({ total: 1284, position: 31 });
   const [lang, setLang] = useState<'ru' | 'en'>(() => {
     const saved = localStorage.getItem('confly_lang');
@@ -71,9 +72,21 @@ export function AuthPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (localStorage.getItem('confly_email')) {
-      navigate('/');
-    }
+    const checkUserStatus = async () => {
+      const email = localStorage.getItem('confly_email');
+      if (email) {
+        const { data } = await supabase.from('waitlist').select('id').eq('email', email).single();
+        if (data) {
+          navigate('/');
+        } else {
+          // Ghost user, clear local storage
+          localStorage.removeItem('confly_email');
+          localStorage.removeItem('confly_position');
+          localStorage.removeItem('confly_total');
+        }
+      }
+    };
+    checkUserStatus();
   }, [navigate]);
 
   useEffect(() => {
@@ -117,7 +130,7 @@ export function AuthPage() {
 
     try {
       // Attempt Sign Up first via Supabase
-      let { error: authError } = await supabase.auth.signUp({
+      let { data, error: authError } = await supabase.auth.signUp({
         email,
         password,
       });
@@ -130,12 +143,25 @@ export function AuthPage() {
         });
         
         if (loginError) {
+          if (loginError.message.toLowerCase().includes('email not confirmed')) {
+            setIsEmailSent(true);
+            setIsLoading(false);
+            return;
+          }
           alert('Ошибка входа: ' + loginError.message);
           setIsLoading(false);
           return;
         }
       } else if (authError) {
         alert('Ошибка регистрации: ' + authError.message);
+        setIsLoading(false);
+        return;
+      }
+
+      // If signup was successful but requires email verification
+      // Check if user exists but session is null, or if they are explicitly unconfirmed
+      if (data.user && (!data.session || !data.user.email_confirmed_at)) {
+        setIsEmailSent(true);
         setIsLoading(false);
         return;
       }
@@ -155,6 +181,22 @@ export function AuthPage() {
       }
 
       navigate('/');
+    } catch (err: any) {
+      alert('Ошибка: ' + err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendEmail = async () => {
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email,
+      });
+      if (error) throw error;
+      alert(t.confirmEmail.success);
     } catch (err: any) {
       alert('Ошибка: ' + err.message);
     } finally {
@@ -355,6 +397,40 @@ export function AuthPage() {
 
                   </div>
                 </div>
+              </div>
+            </div>
+          ) : isEmailSent ? (
+            /* EMAIL CONFIRMATION SCREEN */
+            <div className="w-full max-w-[380px] mx-auto flex flex-col items-center animate-in fade-in zoom-in duration-500 text-center">
+              <div className="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center mb-8 relative group">
+                <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                <Mail className="w-10 h-10 text-primary relative z-10" />
+              </div>
+              
+              <h2 className="text-2xl font-extrabold text-white mb-4 tracking-tight">
+                {t.confirmEmail.title}
+              </h2>
+              
+              <p className="text-gray-400 text-sm leading-relaxed mb-8">
+                {t.confirmEmail.description.replace('{email}', email)}
+              </p>
+
+              <div className="w-full space-y-4">
+                <button 
+                  onClick={handleResendEmail}
+                  disabled={isLoading}
+                  className="w-full bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-white font-semibold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 text-sm disabled:opacity-50"
+                >
+                  {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><CheckCircle2 className="w-4 h-4 text-primary" /> {t.confirmEmail.resend}</>}
+                </button>
+
+                <button 
+                  onClick={() => setIsEmailSent(false)}
+                  className="w-full text-gray-500 hover:text-gray-300 text-xs font-medium transition-colors flex items-center justify-center gap-2"
+                >
+                  <ArrowLeft className="w-3 h-3" />
+                  {t.confirmEmail.back}
+                </button>
               </div>
             </div>
           ) : (

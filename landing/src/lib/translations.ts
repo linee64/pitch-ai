@@ -75,6 +75,13 @@ export const translations = {
     },
     footer: {
       rights: "© 2026 Confly. Все права защищены."
+    },
+    confirmEmail: {
+      title: "Подтвердите почту",
+      description: "Мы отправили ссылку для подтверждения на {email}. Пожалуйста, проверьте папку «Входящие» (и на всякий случай «Спам») и перейдите по ссылке, чтобы активировать аккаунт.",
+      resend: "Не пришло письмо?",
+      back: "Вернуться к регистрации",
+      success: "Письмо отправлено!"
     }
   },
   en: {
@@ -153,6 +160,13 @@ export const translations = {
     },
     footer: {
       rights: "© 2026 Confly. All rights reserved."
+    },
+    confirmEmail: {
+      title: "Confirm your email",
+      description: "We've sent a confirmation link to {email}. Please check your inbox (and spam folder just in case) and click the link to activate your account.",
+      resend: "Didn't get an email?",
+      back: "Back to registration",
+      success: "Email sent!"
     }
   }
 };
