@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { AppShell } from "@/components/confly/AppShell";
 import { scenarios, recentSessions, personas } from "@/data/confly";
-import { ArrowUpRight, Flame, Clock, TrendingUp, Plus } from "lucide-react";
+import { ArrowUpRight, Brain, Clock, TrendingUp, Plus, Award } from "lucide-react";
 import { useI18n } from "@/i18n/i18n";
 
 const categoryColors: Record<string, string> = {
@@ -23,15 +23,15 @@ const Index = () => {
       title={t("idx.title")}
       subtitle={t("idx.subtitle")}
       action={
-        <Link to="/setup/yc-interview" className="h-10 px-5 rounded-lg bg-foreground text-background font-semibold text-sm grid place-items-center hover:opacity-90 transition-opacity">
-          {t("idx.newSession")}
+        <Link to="/setup/custom-upload" className="h-10 px-5 rounded-lg bg-foreground text-background font-semibold text-sm grid place-items-center hover:opacity-90 transition-opacity">
+          {t("idx.createPitch")}
         </Link>
       }
     >
       <div className="grid sm:grid-cols-3 gap-4 mb-10">
         {[
           { label: t("idx.stat.completed"), value: "24", icon: TrendingUp, hint: t("idx.stat.completedHint") },
-          { label: t("idx.stat.composure"), value: "81", icon: Flame, hint: t("idx.stat.composureHint") },
+          { label: t("idx.stat.composure"), value: "88", icon: Award, hint: t("idx.stat.composureHint") },
           { label: t("idx.stat.time"), value: "3h 42m", icon: Clock, hint: t("idx.stat.timeHint") },
         ].map((s) => (
           <div key={s.label} className="glass rounded-xl p-5 flex items-start gap-4">
@@ -71,7 +71,7 @@ const Index = () => {
                 {t("idx.cta.sample")}
               </button>
               <div className="ml-2 flex items-center gap-2 text-xs text-muted-foreground font-mono uppercase tracking-widest">
-                <Flame className="size-3.5 text-primary" /> {t("idx.intensity")} {featured.intensity}/10
+                <Brain className="size-3.5 text-primary" /> {t("idx.intensity")} {featured.intensity}/10
               </div>
             </div>
           </div>
@@ -90,19 +90,26 @@ const Index = () => {
             <div className="absolute bottom-4 left-4 right-4 glass rounded-xl p-4">
               <div className="flex justify-between text-xs">
                 <span className="font-medium">{featuredPersona.name}</span>
-                <span className="text-primary font-mono">{t("ses.hostility")} {featuredPersona.hostility}/10</span>
-              </div>
-              <div className="w-full h-1 bg-background/60 rounded-full mt-2 overflow-hidden">
-                <div className="h-full bg-fluid rounded-full" style={{ width: `${featuredPersona.hostility * 10}%` }} />
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="flex items-end justify-between mb-5">
-        <h2 className="font-display text-2xl font-bold tracking-tight">{t("idx.allScenarios")}</h2>
-        <span className="text-xs text-muted-foreground font-mono uppercase tracking-widest">{rest.length} {t("idx.available")}</span>
+      <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center gap-4">
+          <h2 className="font-display text-2xl font-bold tracking-tight">{t("idx.allScenarios")}</h2>
+          <span className="px-2 py-0.5 rounded-md bg-secondary/50 border border-border text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+            {rest.length} {t("idx.available")}
+          </span>
+        </div>
+        <Link 
+          to="/setup/custom-upload" 
+          className="h-9 px-4 rounded-lg bg-primary text-background font-semibold text-xs flex items-center gap-2 hover:shadow-glow-cyan/20 transition-all active:scale-95"
+        >
+          <Plus className="size-3.5" />
+          {t("idx.createPitch")}
+        </Link>
       </div>
       <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-12">
         {rest.map((s) => (
@@ -122,9 +129,7 @@ const Index = () => {
             <p className="text-sm text-muted-foreground mt-2 leading-relaxed line-clamp-2">{t(`sc.${s.id}.d`)}</p>
             <div className="mt-5 pt-4 border-t border-border flex items-center justify-between text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
               <span className="flex items-center gap-1.5"><Clock className="size-3" />{s.duration}</span>
-              {s.intensity > 0 ? (
-                <span className="flex items-center gap-1.5 text-primary"><Flame className="size-3" />{s.intensity}/10</span>
-              ) : (
+              {s.intensity === 0 && (
                 <span className="flex items-center gap-1.5 text-primary"><Plus className="size-3" />{t("idx.custom")}</span>
               )}
             </div>

@@ -21,9 +21,6 @@ const Personas = () => {
             <div className="relative aspect-[4/5] overflow-hidden">
               <img src={p.image} alt={p.name} loading="lazy" width={768} height={960} className="size-full object-cover mix-blend-luminosity opacity-80 group-hover:opacity-100 group-hover:scale-[1.03] transition-all duration-500" />
               <div className="absolute inset-0 bg-gradient-to-t from-card via-card/30 to-transparent" />
-              <div className="absolute top-3 right-3 glass rounded-md px-2 py-1 flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-widest text-primary">
-                <Flame className="size-3" /> {p.hostility}
-              </div>
             </div>
             <div className="p-5">
               <div className="text-[10px] font-mono uppercase tracking-widest text-primary">{t(`p.${p.id}.arc`)}</div>
